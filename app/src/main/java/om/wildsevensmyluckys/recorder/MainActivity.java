@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
@@ -14,10 +15,14 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Chronometer;
+import android.widget.EditText;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,11 +34,13 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SoundRecordingDemo";
 
-    private Button mStartRecordingButton;
-    private Button mStopRecordingButton;
+    private Button mStartRecordingButton, mStopRecordingButton, playButton;
     private MediaRecorder mediaRecorder;
     private File fileName;
     private MediaPlayer mediaPlayer;
+    private EditText titelRecordEditText;
+    private Chronometer chronometer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +51,8 @@ public class MainActivity extends AppCompatActivity {
 
         mStartRecordingButton = findViewById(R.id.record_button);
         mStopRecordingButton = findViewById(R.id.stop_button);
+        titelRecordEditText = findViewById(R.id.record_title_textView);
+        chronometer = findViewById(R.id.time_record_chronometer);
 
         mStartRecordingButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -74,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
                 mStopRecordingButton.setEnabled(false);
                 mStartRecordingButton.requestFocus();
                 recordStop();
+                chronometer.stop();
             }
         });
 
@@ -84,24 +94,19 @@ public class MainActivity extends AppCompatActivity {
 
     public void recordStart() {
         if (fileName == null) {
+
+            chronometer.setBase(SystemClock.elapsedRealtime());
+            chronometer.start();
             try {
                 File sampleDir = new File(
                         Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC), getPackageName() + getResources().getString(R.string.app_name));
                 if (!sampleDir.exists()) {
                     sampleDir.mkdirs();
                 }
-
-                // Текущее время
-                Date currentDate = new Date();
-// Форматирование времени как "день.месяц.год"
-                DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy", Locale.getDefault());
-                String dateText = dateFormat.format(currentDate);
-// Форматирование времени как "часы:минуты:секунды"
-                DateFormat timeFormat = new SimpleDateFormat("HH:mm:ss", Locale.getDefault());
-                String timeText = timeFormat.format(currentDate);
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat timeStampFormat = new SimpleDateFormat("yyyy-MM-dd-HH.mm.ss");
 
 
-                fileName = File.createTempFile(String.format("meow %s %s ", dateText, timeText), ".3gp", sampleDir);
+                fileName = File.createTempFile(titelRecordEditText.getText().toString() +  timeStampFormat.format(new Date()), ".3gp", sampleDir);
             } catch (IOException e) {
 
                 Log.e(TAG, "sdcard access error");
