@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -34,7 +35,7 @@ import java.util.Locale;
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "SoundRecordingDemo";
 
-    private Button mStartRecordingButton, mStopRecordingButton, playButton;
+    private ImageView mStartRecordingButton, mStopRecordingButton, playButton;
     private MediaRecorder mediaRecorder;
     private File fileName;
     private MediaPlayer mediaPlayer;
